@@ -10,8 +10,9 @@ licenses := Seq("Apache 2" -> url("http://www.apache.org/licenses/LICENSE-2.0.tx
 
 libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "1.7.1" % "test",
-  "org.ccil.cowan.tagsoup" % "tagsoup" % "1.2.1",
-  "se.fishtank" %% "css-selectors-scala" % "0.1.2"
+  "org.jsoup" % "jsoup" % "1.7.1"
+  /*"org.ccil.cowan.tagsoup" % "tagsoup" % "1.2.1",
+  "se.fishtank" %% "css-selectors-scala" % "0.1.2"*/
 )
 
 scalacOptions ++= Seq("-deprecation")

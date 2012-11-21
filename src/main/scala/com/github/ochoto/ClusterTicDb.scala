@@ -1,29 +1,26 @@
 package com.github.ochoto
 
-import scala.xml.{Elem, XML}
-import scala.xml.factory.XMLLoader
- 
-import org.ccil.cowan.tagsoup.jaxp.SAXFactoryImpl
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
+import java.io.File
+
+import scala.collection.JavaConverters._
+
+// Implicit
+/* import scala.collection.JavaConversions._ */
 
 object ClusterTicDb  {
 	def main(args:Array[String]): Unit = {
 	    val file = args(0);
-	    val src = scala.io.Source.fromFile(file);
-	    val cpa = scala.xml.parsing.ConstructingParser.fromSource(src, false); // fromSource initializes automatically
-	    val doc = cpa.document();
-
-	    // let's see what it is
-	    val ppr = new scala.xml.PrettyPrinter(80,5);
-	    val ele = doc.docElem;
-	    Console.println("finished parsing");
-	    val out = ppr.format(ele);
-	    Console.println(out);
+	    println("Working with [" + file + "]")
+	    val input = new File(file);
+		val doc = Jsoup.parse(input, "UTF-8", "")
+		val anchors = doc.select("a").asScala
+		for {
+			a <- anchors
+			if (!a.text.trim.isEmpty)
+		} println(a.text)
 	}
-
-    private val factory = new SAXFactoryImpl()
-    def get(): XMLLoader[Elem] = {
-        XML.withSAXParser(factory.newSAXParser())
-    }
 }
 
 
