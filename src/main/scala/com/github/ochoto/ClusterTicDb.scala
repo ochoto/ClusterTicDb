@@ -48,8 +48,10 @@ object ClusterTicDb  {
 	type Tabla = (String, Map[String,String])
 
 	def processTable(t: Element): Tabla = {
-		val tds = t.select("td").asScala
-		val titulo = tds(0).text
+		val tds = t.select("td")
+		val titulo = tds.first.text
+
+		val tdsClean = tds.not("td[colspan]")
 
 		val kv = for {
 			e <- tds drop(1) grouped(2)
