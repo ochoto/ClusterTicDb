@@ -51,10 +51,10 @@ object ClusterTicDb  {
 		val tds = t.select("td")
 		val titulo = tds.first.text
 
-		val tdsClean = tds.not("td[colspan]")
+		val tdsClean = tds.not("td[colspan]").asScala
 
 		val kv = for {
-			e <- tds drop(1) grouped(2)
+			e <- tdsClean drop(1) grouped(2)
 			if (e.size == 2)
 			p = (e(0).text, e(1).text)
 		} yield p
