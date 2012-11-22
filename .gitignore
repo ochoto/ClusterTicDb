@@ -2,6 +2,7 @@
 ## SBT Project
 ##################
 
+dircluster/
 target/
 lib_managed/
 src_managed/
