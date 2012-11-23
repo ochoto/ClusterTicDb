@@ -14,37 +14,38 @@ object ClusterTicDb  {
 	def main(args:Array[String]): Unit = {
 		val dir = args(0)
 		val htmlFiles = new File(dir).listFiles.filter(_.getName.endsWith(".html"))
-		val fichas = htmlFiles map ( parseFile(_) ) 
+		val numHtmlFiles = htmlFiles.size
+		val filesToParse = if ( args.size > 1)
+								args(1).toInt
+							else
+								numHtmlFiles
+		val fichas = htmlFiles take(filesToParse) map ( parseFile(_) )
 
 		val fichasConDatos = fichas filter { case (i,t,l) => !t.isEmpty }
-		println ("Encontradas [" + fichasConDatos.size + "] fichas.\n")
+		println("Encontradas [" + fichasConDatos.size + "] fichas.\n")
 		fichasConDatos map { case (i,t,l) => viewCompany(i,t,l) }
 	}
 
 	def parseFile(file: File): (Int,String, List[Tabla]) = {
 		val n = file.getName.replace(".html","").toInt
-		//println("Procesando: [" + n + "]")
 		
 		val doc = Jsoup.parse(file, "ISO-8859-1", "")
 		
 		val ficha = doc.select("div.fichas").first
 		val empresa = ficha.select("h1").first.text.trim
-		if (empresa.isEmpty) {
-			//println("El fichero [" + file.getName + "] esta vacío")
-			(-1,"",Nil)
-		}
-		else {
-			//println("Encontrada empresa: " + empresa)
-			val tablas = ficha.select("table.FichaTabla").asScala
-			val fichaParseada = for {
-					t <- tablas
-					pt = processTable(t)
-					if (!pt._2.isEmpty)
-				}
-				yield pt
 
-			(n, empresa, fichaParseada.toList)
-		}
+		if (empresa.isEmpty) 
+			return (-1,"",Nil)
+		
+		val tablas = ficha.select("table.FichaTabla").asScala
+		val fichaParseada = for {
+				t <- tablas
+				pt = processTable(t)
+				if (!pt._2.isEmpty)
+			}
+			yield pt
+
+		(n, empresa, fichaParseada.toList)
 	}
 
 	//	Titulo, Lista de pares clave/valor
@@ -53,6 +54,7 @@ object ClusterTicDb  {
 	//TODO: Los TD con COLSPAN de "Servicio de software" definen una nueva jerarquia
 	//TODO: Al repetirse los nombres de claves se recoge únicamente el último valor
 	//TODO: Ejemplo: Ficha Anasinf (99)
+	//TODO: Además hay una ficha específica de software
 
 	def processTable(t: Element): Tabla = {
 		val tds = t.select("td")
@@ -82,6 +84,5 @@ object ClusterTicDb  {
 		println("############ " + tname + " ###########")
 		tmap map { case (k,v) => println("\t" + k + ": " + v ) }
 	}
-
 }
 
