@@ -37,6 +37,18 @@ object ClusterTicDb  {
 		if (empresa.isEmpty) 
 			return (-1,"",Nil)
 		
+		
+		// Descomento los comentarios, tienen información interesante
+		// No puedo hacerlo mediante map por excepción de modificación concurrente
+		for (i <- 0 to ficha.childNodes.size) {
+			val n = ficha.childNode(i)
+			if ( n.nodeName == "#comment") {
+				val strippedComments = n.outerHtml.replace("<!--","").replace("-->","")
+				n.before( strippedComments ) 
+				n.remove
+			}
+		}
+
 		val tablas = ficha.select("table.FichaTabla").asScala
 		val fichaParseada = for {
 				t <- tablas
