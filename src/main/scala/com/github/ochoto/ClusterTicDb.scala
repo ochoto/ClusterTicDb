@@ -3,7 +3,7 @@ package com.github.ochoto
 import java.io.File
 
 import org.jsoup.Jsoup
-import org.jsoup.nodes.{Document, Element}
+import org.jsoup.nodes.{Document, Element, Node}
 
 import scala.collection.JavaConverters._
 
@@ -37,17 +37,10 @@ object ClusterTicDb  {
 		if (empresa.isEmpty) 
 			return (-1,"",Nil)
 		
-		
 		// Descomento los comentarios, tienen información interesante
 		// No puedo hacerlo mediante map por excepción de modificación concurrente
-		for (i <- 0 to ficha.childNodes.size) {
-			val n = ficha.childNode(i)
-			if ( n.nodeName == "#comment") {
-				val strippedComments = n.outerHtml.replace("<!--","").replace("-->","")
-				n.before( strippedComments ) 
-				n.remove
-			}
-		}
+
+		revelaComentarios(ficha)
 
 		val tablas = ficha.select("table.FichaTabla").asScala
 		val fichaParseada = for {
@@ -59,6 +52,24 @@ object ClusterTicDb  {
 
 		(n, empresa, fichaParseada.toList)
 	}
+
+
+	//Modifica el arbol DOM
+
+	def revelaComentarios(ficha: Node): Unit = {
+		for (i <- 0 to (ficha.childNodes.size-1)) {
+			val n = ficha.childNode(i)
+			if ( n.nodeName == "#comment") {
+				val strippedComments = n.outerHtml.replace("<!--","").replace("-->","")
+				n.before( strippedComments ) 
+				n.remove
+			}
+			else {
+				revelaComentarios(n)
+			}
+		}
+	}
+
 
 	//	Titulo, Lista de pares clave/valor
 	type Tabla = (String, Map[String,String])
