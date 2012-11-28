@@ -1,14 +1,13 @@
 package com.github.ochoto
 
 import java.io.File
-
 import org.jsoup.Jsoup
 import org.jsoup.nodes.{Document, Element, Node}
-
 import scala.collection.JavaConverters._
-
 // Implicit
 /* import scala.collection.JavaConversions._ */
+
+import java.sql.{Connection, DriverManager, ResultSet}
 
 object ClusterTicDb  {
 	def main(args:Array[String]): Unit = {
@@ -24,6 +23,8 @@ object ClusterTicDb  {
 		val fichasConDatos = fichas filter { case (i,t,l) => !t.isEmpty }
 		println("Encontradas [" + fichasConDatos.size + "] fichas.\n")
 		fichasConDatos map { case (i,t,l) => viewCompany(i,t,l) }
+
+		DbManager.query("select * from tabla")
 	}
 
 	def parseFile(file: File): (Int,String, List[Tabla]) = {
@@ -106,6 +107,22 @@ object ClusterTicDb  {
 	def viewTable(t: Tabla) = t match { case (tname, tmap) =>
 		println("############ " + tname + " ###########")
 		tmap map { case (k,v) => println("\t" + k + ": " + v ) }
+	}
+}
+
+object DbManager {
+	classOf[com.mysql.jdbc.Driver]	// Load the driver
+	val conn_str = "jdbc:mysql://localhost:3306/ClusterTic?user=clustertic&password=clustertic"
+	val conn = DriverManager.getConnection(conn_str)
+	val queryStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)
+	val dmlStmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE)
+
+	def query(sql: String) {
+		val rs = queryStmt.executeQuery(sql)
+	}
+
+	def dml(sql: String) {
+		val rs = dmlStmt.executeQuery(sql)
 	}
 }
 

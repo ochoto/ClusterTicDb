@@ -10,7 +10,8 @@ licenses := Seq("Apache 2" -> url("http://www.apache.org/licenses/LICENSE-2.0.tx
 
 libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "1.7.1" % "test",
-  "org.jsoup" % "jsoup" % "1.7.1"
+  "org.jsoup" % "jsoup" % "1.7.1",
+  "mysql" % "mysql-connector-java" % "5.1.22"
   /*"org.ccil.cowan.tagsoup" % "tagsoup" % "1.2.1",
   "se.fishtank" %% "css-selectors-scala" % "0.1.2"*/
 )
