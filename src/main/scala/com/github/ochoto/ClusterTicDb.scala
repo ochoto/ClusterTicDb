@@ -24,7 +24,7 @@ object ClusterTicDb  {
 		println("Encontradas [" + fichasConDatos.size + "] fichas.\n")
 		fichasConDatos map { case (i,t,l) => viewCompany(i,t,l) }
 
-		DbManager.query("select * from tabla")
+		DbManager.query("select * from Empresa")
 	}
 
 	def parseFile(file: File): (Int,String, List[Tabla]) = {
