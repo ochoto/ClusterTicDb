@@ -22,9 +22,16 @@ object ClusterTicDb  {
 
 		val fichasConDatos = fichas filter { case (i,t,l) => !t.isEmpty }
 		println("Encontradas [" + fichasConDatos.size + "] fichas.\n")
-		fichasConDatos map { case (i,t,l) => viewCompany(i,t,l) }
+		
+		//fichasConDatos map { case (i,t,l) => viewCompany(i,t,l) }
 
-		DbManager.query("select * from Empresa")
+		fichasConDatos map { case (i,t,l) => csvCompany(i,t,l) }
+
+		//DbManager.query("select * from Empresa")
+	}
+
+	def cleanKey(s: String) = {
+		s.toLowerCase.filterNot(": -%()".contains(_)).map { c => ("áéíóúñ" zip "aeioun").toMap.getOrElse(c,c) }
 	}
 
 	def parseFile(file: File): (Int,String, List[Tabla]) = {
@@ -89,7 +96,8 @@ object ClusterTicDb  {
 		val kv = for {
 			e <- tdsClean grouped(2)
 			if (e.size == 2)
-			p = (e(0).text.replace(":",""), e(1).text)
+			ck = cleanKey(e(0).text)
+			p = (ck, e(1).text)
 		} yield p
 
 		val kvMap = kv filter { case (k,v) => !v.isEmpty } toMap
@@ -108,8 +116,29 @@ object ClusterTicDb  {
 		println("############ " + tname + " ###########")
 		tmap map { case (k,v) => println("\t" + k + ": " + v ) }
 	}
+
+
+	def csvCompany(id: Int, company: String, data: List[Tabla]) {
+		println(csvTable(data.head))
+	}
+
+	def csvTable(t: Tabla) = t match { 
+		case (tname, tmap) => {
+			def m(s: String) = tmap.getOrElse(s,"#" + s.toUpperCase + "#").replace("\"","'")
+			val l = List(m("razonsocial"),m("cif"),m("denominacioncomercial"),m("email"),
+						 m("personadecontactocomercial"),m("paginaweb"),m("telefono"),m("poblacion"),
+						 m("direccion"),m("codigopostal"),m("anodeconstitucion"),
+						 m("descripciondelaactividaddelaempresa"),m("numerodetrabajadores"),
+						 m("asociacionesoentidadesalasquepertenece")
+					 );
+
+			l.map('"' + _ + '"').mkString(",")
+		}
+	}
 }
 
+
+/*
 object DbManager {
 	classOf[com.mysql.jdbc.Driver]	// Load the driver
 	val conn_str = "jdbc:mysql://localhost:3306/ClusterTic?user=clustertic&password=clustertic"
@@ -126,3 +155,4 @@ object DbManager {
 	}
 }
 
+*/
